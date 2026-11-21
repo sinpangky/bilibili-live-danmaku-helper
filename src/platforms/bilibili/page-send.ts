@@ -40,7 +40,7 @@ export async function sendBilibiliDanmakuInPage(rawMessage: string): Promise<Bil
     const csrf = cookieValue('bili_jct')
     if (!csrf) return { ok: false, error: 'not-signed-in' }
 
-    const pathRoomId = /^\/(\d+)/.exec(location.pathname)?.[1] || ''
+    const pathRoomId = /^\/(?:blanc\/)?(\d+)(?:\/|$)/.exec(location.pathname)?.[1] || ''
     if (!pathRoomId) return { ok: false, error: 'room-not-found' }
 
     const roomResponse = await fetch(
@@ -48,8 +48,10 @@ export async function sendBilibiliDanmakuInPage(rawMessage: string): Promise<Bil
       { credentials: 'include' },
     )
     const roomResult = await roomResponse.json()
-    const roomId = String(roomResult?.data?.room_id || pathRoomId)
-    if (!roomResponse.ok || !roomId) return { ok: false, error: 'room-not-found' }
+    const roomId = String(roomResult?.data?.room_id ?? '')
+    if (!roomResponse.ok || roomResult?.code !== 0 || !/^[1-9]\d*$/.test(roomId)) {
+      return { ok: false, error: String(roomResult?.message || 'room-not-found') }
+    }
 
     const body = new URLSearchParams({
       bubble: '0',
@@ -75,7 +77,7 @@ export async function sendBilibiliDanmakuInPage(rawMessage: string): Promise<Bil
       body,
     })
     const result = await sendResponse.json()
-    if (sendResponse.ok && Number(result?.code) === 0) return { ok: true }
+    if (sendResponse.ok && result?.code === 0) return { ok: true }
     return { ok: false, error: String(result?.message || result?.msg || `http-${sendResponse.status}`) }
   } catch (error) {
     return { ok: false, error: String(error instanceof Error ? error.message : error) }

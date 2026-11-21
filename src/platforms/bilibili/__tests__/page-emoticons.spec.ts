@@ -18,7 +18,7 @@ function jsonResponse(value: unknown): Response {
 function mockLiveRoom(): void {
   Object.defineProperty(globalThis, 'location', {
     configurable: true,
-    value: { hostname: 'live.bilibili.com', pathname: '/8818471' },
+    value: { hostname: 'live.bilibili.com', pathname: '/blanc/8818471' },
   })
 }
 

@@ -3176,18 +3176,19 @@ import { t } from '../core/i18n'
     ) {
       return state.bilibiliEmojiCatalog
     }
-    if (state.bilibiliEmojiCatalogBuild) return state.bilibiliEmojiCatalogBuild
+    if (state.bilibiliEmojiCatalogBuild?.roomKey === roomKey) return state.bilibiliEmojiCatalogBuild.promise
     const build = buildBilibiliEmojiCatalog(input, includeHidden)
-    state.bilibiliEmojiCatalogBuild = build
+    state.bilibiliEmojiCatalogBuild = { roomKey, promise: build }
     try {
       const catalog = await build
       // An early content-script run can happen before Bilibili mounts the
       // editor/panel. Do not cache an empty result; the warmup retry can then
       // pick up the panel once the room has finished mounting.
+      if (bilibiliEmojiCatalogRoomKey() !== roomKey) return { entries: [], roomKey }
       if (catalog.entries.length > 0) state.bilibiliEmojiCatalog = catalog
       return catalog
     } finally {
-      if (state.bilibiliEmojiCatalogBuild === build) state.bilibiliEmojiCatalogBuild = null
+      if (state.bilibiliEmojiCatalogBuild?.promise === build) state.bilibiliEmojiCatalogBuild = null
     }
   }
 
@@ -3249,7 +3250,7 @@ import { t } from '../core/i18n'
   }
 
   function bilibiliEmojiCatalogRoomKey() {
-    const roomId = /^\/(\d+)/.exec(location.pathname)?.[1]
+    const roomId = /^\/(?:blanc\/)?(\d+)(?:\/|$)/.exec(location.pathname)?.[1]
     return `${location.hostname}/${roomId || location.pathname.replace(/\/+$/, '') || '/'}`
   }
 
@@ -3286,7 +3287,7 @@ import { t } from '../core/i18n'
     if (state.bilibiliApiEmojiCatalog?.roomKey === roomKey) {
       return state.bilibiliApiEmojiCatalog
     }
-    if (state.bilibiliApiEmojiCatalogBuild) return state.bilibiliApiEmojiCatalogBuild
+    if (state.bilibiliApiEmojiCatalogBuild?.roomKey === roomKey) return state.bilibiliApiEmojiCatalogBuild.promise
     const build = (async () => {
       const response = await requestBilibiliEmoticonApi({ operation: 'catalog' })
       if (!response?.ok || !Array.isArray(response.emoticons)) {
@@ -3314,15 +3315,16 @@ import { t } from '../core/i18n'
           value: emoticon,
         }
       })
+      if (bilibiliEmojiCatalogRoomKey() !== roomKey) return null
       const catalog = { entries, roomKey }
       state.bilibiliApiEmojiCatalog = catalog
       return catalog
     })()
-    state.bilibiliApiEmojiCatalogBuild = build
+    state.bilibiliApiEmojiCatalogBuild = { roomKey, promise: build }
     try {
       return await build
     } finally {
-      if (state.bilibiliApiEmojiCatalogBuild === build) {
+      if (state.bilibiliApiEmojiCatalogBuild?.promise === build) {
         state.bilibiliApiEmojiCatalogBuild = null
       }
     }

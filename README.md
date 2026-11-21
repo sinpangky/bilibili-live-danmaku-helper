@@ -2,14 +2,14 @@
 
 **一键 +1 复读、收藏弹幕、快捷发送、独轮车循环发送。让 B 站直播间互动更方便。**
 
-一个免费、开源的 Chrome 浏览器扩展，专为哔哩哔哩（Bilibili）直播间设计。
+一个免费、开源的 Chrome、Edge 和桌面 Firefox 扩展，专为哔哩哔哩（Bilibili）直播间设计。
 
-*An open-source Chrome extension for Bilibili Live. One-click danmaku repetition, copying, favorites, quick replies, automatic message rotation, and fullscreen support.*
+*An open-source Chrome, Edge and Firefox extension for Bilibili Live. One-click danmaku repetition, copying, favorites, quick replies, automatic message rotation, and fullscreen support.*
 
-[下载安装](https://github.com/sinpangky/bililive-danmaku-plus-one/releases/latest) · [查看源码](https://github.com/sinpangky/bililive-danmaku-plus-one) · [隐私说明](PRIVACY.md)
+[下载安装](https://github.com/sinpangky/bilibili-live-danmaku-helper/releases/latest) · [查看源码](https://github.com/sinpangky/bilibili-live-danmaku-helper) · [隐私说明](PRIVACY.md)
 
 > 适用平台：B站网页版直播间 `live.bilibili.com`  
-> 当前版本：v0.0.3 · Chrome Manifest V3 · 简体中文界面
+> 源码版本：v0.0.4 · Manifest V3 · 简体中文界面
 
 ## 它能做什么？
 
@@ -25,28 +25,20 @@
 - **侧边聊天栏快捷操作**：可选开启聊天栏中的 +1、复制、收藏和回复按钮。
 - **快捷键与本地备份**：使用 `Alt+Q` 打开功能面板，支持数字键快捷发送收藏，并可导入、导出 JSON 数据。
 
-## 效果预览
+## 安装
 
-建议在此放置 10–20 秒的实际操作 GIF，依次演示：
+**Firefox 桌面版（140 及以上）**：打开 `about:debugging#/runtime/this-firefox`，点击 **临时载入附加组件**，选择 `bililive-danmaku-plus-one-firefox-v0.0.4.zip`。打开或刷新 B 站直播间。此 ZIP 用于临时加载，重启浏览器后需重新加载；正式版 Firefox 的长期安装需要 Mozilla 签名。Firefox 支持本地收藏和 JSON 导入、导出，目录自动同步仅在浏览器提供目录选择器时可用。
 
-1. 鼠标悬停滚动弹幕，点击 `+1`。
-2. 使用 `Alt+Q` 打开收藏面板，快捷发送收藏内容。
-3. 打开独轮车，配置发送间隔并开始发送。
+**Chrome / Edge**：解压不含 `-firefox-` 的 ZIP，打开 `chrome://extensions` 或 `edge://extensions`，开启 **开发者模式**，点 **加载已解压的扩展程序**，选择解压后的目录。
 
-## 安装教程
+[GitHub Releases](https://github.com/sinpangky/bilibili-live-danmaku-helper/releases) 提供已发布版本。要从当前源码生成两个 ZIP，请使用项目要求的 Node.js 版本，在仓库根目录运行：
 
-目前通过 GitHub Releases 提供安装包，不需要自行编译，也不需要安装 Tampermonkey。
+```sh
+npm ci
+npm run package
+```
 
-1. 打开 [最新版本下载页面](https://github.com/sinpangky/bililive-danmaku-plus-one/releases/latest)。
-2. 下载 `bililive-danmaku-plus-one-v0.0.3.zip`，解压到一个固定目录。
-3. 在 Chrome 地址栏输入 `chrome://extensions`。
-4. 开启右上角的 **开发者模式**。
-5. 点击 **加载已解压的扩展程序**，选择解压后的插件目录。
-6. 打开或刷新任意 [B站直播间](https://live.bilibili.com/)。
-
-安装完成后，把鼠标移动到直播画面中的弹幕上，试试 `+1` 按钮。
-
-**注意：** Chrome 无法直接加载 ZIP 文件。目前采用手动安装及更新方式，升级后需要在扩展管理页面重新加载插件。
+两个安装包写入 `dist/`。开发时可分别加载 `build/firefox/manifest.json` 和 `build/extension/`。已安装 Firefox 和 geckodriver 时，运行 `npm run test:firefox` 可在临时浏览器配置中测试发送、设置和日志。自定义安装位置可通过 `DANMAKU_E2E_FIREFOX_PATH` 和 `DANMAKU_GECKODRIVER` 指定。
 
 ## 常用操作
 
@@ -116,6 +108,6 @@
 - [上游与修改说明](NOTICE.md)
 - [开源许可证](LICENSE)
 
-使用 TypeScript 开发，基于 Chrome Manifest V3。需要从源码构建时，在项目根目录执行 `npm ci` 和 `npm run build-only`，具体 Node.js 版本与验证流程见开发文档。
+使用 TypeScript 和 Vue 开发。构建需要 Node.js 22.22.2+（22.x）或 24.15.0 及以上，运行 `npm run check` 可验证两种扩展清单并执行项目测试。
 
 **搜索关键词：** B站直播弹幕助手、B站弹幕复读插件、弹幕+1、一键复读、B站独轮车、直播弹幕收藏、Bilibili Live Danmaku、Chrome Extension。

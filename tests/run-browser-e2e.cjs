@@ -309,7 +309,7 @@ async function main() {
   }
 }
 
-module.exports = { scenarioAttemptFailed }
+module.exports = { availablePort, scenarioAttemptFailed, startFixtureServer }
 
 if (require.main === module) {
   main().catch((error) => {

@@ -6,7 +6,6 @@ const {
   mkdirSync,
   readFileSync,
   readdirSync,
-  rmSync,
   statSync,
   writeFileSync,
 } = require("node:fs");
@@ -77,7 +76,8 @@ function verifyArchive(data) {
 
 function packageArchive(options = {}) {
   const projectRoot = resolve(options.root || root);
-  const extensionRoot = join(projectRoot, "build", "extension");
+  const firefox = options.browser === "firefox";
+  const extensionRoot = join(projectRoot, "build", firefox ? "firefox" : "extension");
   const manifestPath = join(extensionRoot, "manifest.json");
   const licensePath = join(projectRoot, "LICENSE");
   const noticePath = join(projectRoot, "NOTICE.md");
@@ -102,27 +102,27 @@ function packageArchive(options = {}) {
       ? resolve(outputArgument)
       : resolve(projectRoot, outputArgument)
     : join(projectRoot, "dist");
-  const destination = join(outputDir, `bililive-danmaku-plus-one-v${manifest.version}.zip`);
+  const destination = join(outputDir, `bililive-danmaku-plus-one${firefox ? "-firefox" : ""}-v${manifest.version}.zip`);
 
   mkdirSync(outputDir, { recursive: true });
-  rmSync(destination, { force: true });
   const data = zipSync(archiveInput(extensionRoot, licensePath, noticePath, readmePath), {
     level: 9,
     // ZIP stores local wall-clock fields. Constructing a local date keeps the
     // encoded timestamp identical on runners in different time zones.
     mtime: new Date(1980, 0, 1, 0, 0, 0),
   });
-  verifyArchive(data);
+  const entries = verifyArchive(data);
   writeFileSync(destination, data);
 
   const hash = createHash("sha256").update(data).digest("hex").toUpperCase();
-  return { destination, entries: verifyArchive(data), hash };
+  return { destination, entries, hash };
 }
 
 function run() {
-  const result = packageArchive({ outputDir: process.argv[2] || "" });
-  console.log(`Created: ${result.destination}`);
-  console.log(`SHA256: ${result.hash}`);
+  for (const browser of ["chromium", "firefox"]) {
+    const result = packageArchive({ browser, outputDir: process.argv[2] || "" });
+    console.log(`Created: ${result.destination} (SHA256 ${result.hash})`);
+  }
 }
 
 if (require.main === module) run();

@@ -61,6 +61,24 @@ describe('Bilibili page-context sending', () => {
     expect(body.get('csrf_token')).toBe('test-csrf')
   })
 
+  it('resolves an embedded room before sending', async () => {
+    vi.stubGlobal('location', new URL('https://live.bilibili.com/blanc/123'))
+    fetchMock.mockResolvedValueOnce(jsonResponse({ code: 0, data: { room_id: 456 } }))
+      .mockResolvedValueOnce(jsonResponse({ code: 0 }))
+    expect(await sendBilibiliDanmakuInPage('测试')).toEqual({ ok: true })
+    expect(String(fetchMock.mock.calls[0]?.[0])).toMatch(/id=123$/)
+    const body = fetchMock.mock.calls[1]?.[1]?.body as URLSearchParams | undefined
+    expect(body?.get('roomid')).toBe('456')
+  })
+
+  it.each([{ code: -400, data: { room_id: 123 } }, { code: 0, data: {} }])(
+    'stops after an invalid room lookup', async (result) => {
+      fetchMock.mockResolvedValueOnce(jsonResponse(result))
+      expect(await sendBilibiliDanmakuInPage('测试')).toEqual({ ok: false, error: 'room-not-found' })
+      expect(fetchMock).toHaveBeenCalledTimes(1)
+    },
+  )
+
   it('does not make a send request without a logged-in CSRF cookie', async () => {
     vi.spyOn(document, 'cookie', 'get').mockReturnValue('other=value')
     expect(await sendBilibiliDanmakuInPage('测试')).toEqual({

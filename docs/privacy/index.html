@@ -21,16 +21,16 @@
   <body>
     <main>
       <h1>bililive-danmaku-plus-one</h1>
-      <p class="meta">隐私政策 / Privacy Policy · 2026-08-10</p>
+      <p class="meta">隐私政策 / Privacy Policy · 2026-11-21</p>
       <nav aria-label="Languages"><a href="#zh-cn">中文</a><a href="#english">English</a></nav>
 
       <section id="zh-cn" lang="zh-CN">
         <h2>中文</h2>
         <p>本扩展仅在 B 站直播页面提供弹幕 +1、复制、回复、侧栏操作、全屏发送、本地收藏和用户主动配置的独轮车循环发送，不收集、出售或共享用户数据，也不使用分析、广告、跟踪或远程代码。</p>
         <h3>本地数据</h3>
-        <p>设置由 <code>storage.sync</code> 保存。收藏和独轮车配置保存在 <code>storage.local</code>；收藏只在用户明确选择并授权目录后同步到本地 JSON 文件。扩展不会上传收藏。</p>
+        <p>设置由 <code>storage.sync</code> 保存。收藏和独轮车配置保存在 <code>storage.local</code>；收藏只在用户明确选择并授权目录后同步到本地 JSON 文件。扩展不会上传收藏。最近 200 条发送日志（含正文、目标内容和操作结果）保存在本机，可在设置中清空。</p>
         <h3>页面访问与发送</h3>
-        <p>扩展仅访问 <code>live.bilibili.com</code>。普通模式使用 B 站官方输入框；全屏模式可在 B 站页面上下文中发起用户明确要求的官方弹幕请求。CSRF 值只用于当次 B 站请求，不写入存储或诊断，也不发送给 B 站之外的服务。</p>
+        <p>扩展仅访问 <code>live.bilibili.com</code>。扩展使用当前直播间标识和登录态向 B 站查询房间与可用表情；普通和全屏模式均可通过官方接口发送用户选择的弹幕。CSRF 值只用于当次 B 站请求，不写入存储或诊断，也不发送给 B 站之外的服务。</p>
         <h3>诊断</h3>
         <p>诊断仅在用户点击后复制，且不包含弹幕正文、账号信息、Cookie、CSRF、收藏内容、房间号或完整 URL，不会自动上传。</p>
       </section>
@@ -39,9 +39,9 @@
         <h2>English</h2>
         <p>This extension provides +1, copy, reply preparation, side-chat actions, fullscreen sending, local favorites, and a user-configured repeating sender only on Bilibili Live. It does not collect, sell, or share user data and uses no analytics, advertising, tracking, or remote code.</p>
         <h3>Local data</h3>
-        <p>Preferences use <code>storage.sync</code>. Favorites and repeating-sender settings stay in <code>storage.local</code>; favorites are synchronized to local JSON files only after the user explicitly selects and authorizes a folder. Favorites are never uploaded by the extension.</p>
+        <p>Preferences use <code>storage.sync</code>. Favorites and repeating-sender settings stay in <code>storage.local</code>; favorites are synchronized to local JSON files only after the user explicitly selects and authorizes a folder. Favorites stay local. The latest 200 send logs include message text, intended content and results. You can clear them in settings.</p>
         <h3>Site access and sending</h3>
-        <p>The extension accesses only <code>live.bilibili.com</code>. It uses the official editor in normal mode and may perform a user-requested official danmaku request in the Bilibili page context during fullscreen. CSRF values are used only for that Bilibili request and are never stored, included in diagnostics, or sent elsewhere.</p>
+        <p>The extension accesses only <code>live.bilibili.com</code>. It queries Bilibili for room and emoticon information using the current room ID and session. In both normal and fullscreen modes it sends the selected message through the official Bilibili API. CSRF values are used only for that Bilibili request and are never stored, included in diagnostics, or sent elsewhere.</p>
         <h3>Diagnostics</h3>
         <p>Diagnostics are copied only after a user action. They exclude danmaku text, account information, cookies, CSRF values, favorites, room identifiers, and full URLs, and are never uploaded automatically.</p>
       </section>

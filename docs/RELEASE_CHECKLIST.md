@@ -7,11 +7,12 @@
 - [ ] `npm ci` and `npm run check` pass on Windows and Fedora.
 - [ ] Stable Chrome and Edge E2E pass without assertion retries.
 - [ ] Three consecutive full CI runs pass before a store submission.
-- [ ] The Windows release job produces one ZIP and `SHA256SUMS`.
-- [ ] The ZIP contains `LICENSE`, `NOTICE.md`, and `README.md`, and the matching Git tag exposes the complete corresponding source.
+- [ ] The Windows release job produces a Chromium ZIP, an unsigned Firefox ZIP and `SHA256SUMS`.
+- [ ] Each ZIP contains `LICENSE`, `NOTICE.md`, and `README.md`, and the matching Git tag exposes the complete corresponding source.
 
 ## Manual live-room acceptance
 
+- [ ] Firefox: temporarily load the Firefox ZIP and check settings, JSON backup, and +1 in ordinary and embedded rooms.
 - [ ] Chrome: Bilibili on-video danmaku in normal, web-fullscreen, and native fullscreen modes.
 - [ ] The side chat and areas outside the player do not activate on-video danmaku selection.
 - [ ] Optional side-chat capsule stays outside the message row and remains reachable while chat scrolls.

@@ -70,7 +70,7 @@ export default defineConfig(({ command, mode }) => {
         minify: false,
         outDir: 'build/extension',
         sourcemap: false,
-        target: 'chrome110',
+        target: ['chrome110', 'firefox140'],
       },
     }
   }
@@ -96,7 +96,7 @@ export default defineConfig(({ command, mode }) => {
       minify: false,
       outDir: 'build/extension',
       sourcemap: false,
-      target: 'chrome110',
+      target: ['chrome110', 'firefox140'],
     },
   }
 })
