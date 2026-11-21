@@ -2,6 +2,10 @@
 
 本文件记录 bililive-danmaku-plus-one 的重要变更。
 
+## [0.0.5] - 2026-11-22
+
+- 发布新版本时自动向 Mozilla 提交 Firefox 扩展签名，校验签名包内容后，将 Firefox 安装包（.xpi）、Chrome / Edge 安装包（.zip）和 SHA256SUMS 一起发布到 GitHub Releases。
+
 ## [0.0.4] - 2026-11-21
 
 - 增加桌面 Firefox 140+ 安装包，保留 Chromium 加载方式。

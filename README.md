@@ -9,7 +9,7 @@
 [下载安装](#安装) · [查看源码](https://github.com/sinpangky/bilibili-live-danmaku-helper) · [隐私说明](PRIVACY.md)
 
 > 适用平台：B站网页版直播间 `live.bilibili.com`  
-> 源码版本：v0.0.4 · Manifest V3 · 简体中文界面
+> 源码版本：v0.0.5 · Manifest V3 · 简体中文界面
 
 ## 它能做什么？
 
@@ -29,13 +29,13 @@
 
 ### Firefox 桌面版（140 及以上）
 
-1. 下载 [Firefox 签名安装包（v0.0.4，.xpi）](https://github.com/sinpangky/bilibili-live-danmaku-helper/releases/download/v0.0.4/bililive-danmaku-plus-one-firefox-v0.0.4.xpi)。
+1. 下载 [Firefox 签名安装包（v0.0.5，.xpi）](https://github.com/sinpangky/bilibili-live-danmaku-helper/releases/download/v0.0.5/bililive-danmaku-plus-one-firefox-v0.0.5.xpi)。
 2. 在 Firefox 地址栏输入 `about:addons`，点击齿轮菜单，选择 **从文件安装附加组件**。
 3. 选中下载的 `.xpi` 文件，按提示确认安装。该版本已获 Mozilla 签名，重启 Firefox 后仍可使用。
 
 ### Chrome / Edge
 
-1. 下载 [Chrome / Edge 安装包（v0.0.4，.zip）](https://github.com/sinpangky/bilibili-live-danmaku-helper/releases/download/v0.0.4/bililive-danmaku-plus-one-v0.0.4.zip)，解压到一个会长期保留的文件夹。
+1. 下载 [Chrome / Edge 安装包（v0.0.5，.zip）](https://github.com/sinpangky/bilibili-live-danmaku-helper/releases/download/v0.0.5/bililive-danmaku-plus-one-v0.0.5.zip)，解压到一个会长期保留的文件夹。
 2. 在 Chrome 地址栏输入 `chrome://extensions`，或在 Edge 地址栏输入 `edge://extensions`，打开 **开发者模式**。
 3. 点击 **加载已解压的扩展程序**（英文界面为 **Load unpacked**），选择直接包含 `manifest.json` 的文件夹。安装后请保留该文件夹，浏览器会继续从中读取扩展。
 
