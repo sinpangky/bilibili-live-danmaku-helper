@@ -50,6 +50,7 @@
 </template>
 
 <script setup lang="ts">
+import { extensionApi } from '../core/extension-api'
 import { computed, onMounted, ref } from 'vue'
 import {
   SEND_LOG_MESSAGE,
@@ -62,7 +63,7 @@ const entries = ref<SendLogEntryV1[]>([])
 const summary = computed(() => `最近 ${entries.value.length} 条发送记录`)
 
 function request(operation: 'clear' | 'list'): Promise<SendLogResponse> {
-  return chrome.runtime.sendMessage({ type: SEND_LOG_MESSAGE, operation })
+  return extensionApi.runtime.sendMessage({ type: SEND_LOG_MESSAGE, operation })
 }
 
 async function load(): Promise<void> {

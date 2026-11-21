@@ -53,15 +53,17 @@ export async function handleBilibiliEmoticonsInPage(
 ): Promise<BilibiliEmoticonResponse> {
   try {
     if (location.hostname !== 'live.bilibili.com') return { ok: false, error: 'invalid-page' }
-    const pathRoomId = /^\/(\d+)/.exec(location.pathname)?.[1] || ''
+    const pathRoomId = /^\/(?:blanc\/)?(\d+)(?:\/|$)/.exec(location.pathname)?.[1] || ''
     if (!pathRoomId) return { ok: false, error: 'room-not-found' }
     const roomResponse = await fetch(
       `https://api.live.bilibili.com/room/v1/Room/room_init?id=${encodeURIComponent(pathRoomId)}`,
       { credentials: 'include' },
     )
     const roomResult = await roomResponse.json()
-    const roomId = String(roomResult?.data?.room_id || pathRoomId)
-    if (!roomResponse.ok || !roomId) return { ok: false, error: 'room-not-found' }
+    const roomId = String(roomResult?.data?.room_id ?? '')
+    if (!roomResponse.ok || roomResult?.code !== 0 || !/^[1-9]\d*$/.test(roomId)) {
+      return { ok: false, error: String(roomResult?.message || 'room-not-found') }
+    }
 
     if (request.operation === 'catalog') {
       const response = await fetch(
@@ -69,7 +71,7 @@ export async function handleBilibiliEmoticonsInPage(
         { credentials: 'include' },
       )
       const result = await response.json()
-      if (!response.ok || Number(result?.code) !== 0) {
+      if (!response.ok || result?.code !== 0) {
         return { ok: false, error: String(result?.message || `http-${response.status}`) }
       }
       const packages = Array.isArray(result?.data?.data) ? result.data.data : []
@@ -130,7 +132,7 @@ export async function handleBilibiliEmoticonsInPage(
       method: 'POST',
     })
     const result = await response.json()
-    if (response.ok && Number(result?.code) === 0) return { ok: true, roomId }
+    if (response.ok && result?.code === 0) return { ok: true, roomId }
     return { ok: false, error: String(result?.message || result?.msg || `http-${response.status}`) }
   } catch (error) {
     return { ok: false, error: String(error instanceof Error ? error.message : error) }

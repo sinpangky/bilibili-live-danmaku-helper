@@ -220,6 +220,7 @@
 </template>
 
 <script setup lang="ts">
+import { extensionApi } from './core/extension-api'
 import { computed } from "vue";
 import type { ColorSettingKey, PlatformId } from "./core/types";
 import ColorPlatform from "./components/ColorPlatform.vue";
@@ -312,9 +313,9 @@ async function writeClipboardText(value: string): Promise<boolean> {
 
 async function copyCurrentPageDiagnostics(): Promise<void> {
   try {
-    const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+    const [tab] = await extensionApi.tabs.query({ active: true, currentWindow: true });
     if (typeof tab?.id !== "number") throw new Error("active-tab-unavailable");
-    const response = await chrome.tabs.sendMessage(tab.id, {
+    const response = await extensionApi.tabs.sendMessage(tab.id, {
       type: "danmaku-echo.diagnostics.snapshot"
     });
     if (!response?.ok || !response.snapshot) throw new Error("diagnostics-unavailable");

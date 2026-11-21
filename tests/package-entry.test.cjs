@@ -1,7 +1,7 @@
 "use strict";
 
 const assert = require("node:assert/strict");
-const { mkdtempSync, mkdirSync, readFileSync, rmSync, writeFileSync } = require("node:fs");
+const { cpSync, mkdtempSync, mkdirSync, readFileSync, rmSync, writeFileSync } = require("node:fs");
 const os = require("node:os");
 const path = require("node:path");
 const test = require("node:test");
@@ -57,6 +57,24 @@ test("rejects incomplete build output before writing a release", () => {
       () => packageArchive({ root }),
       /ZIP is missing required entry: src\/content\.js/,
     );
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+});
+
+test("packages the Firefox manifest from its own build without replacing Chromium", () => {
+  const root = fixtureProject();
+  try {
+    const firefox = path.join(root, "build", "firefox");
+    cpSync(path.join(root, "build", "extension"), firefox, { recursive: true });
+    const manifest = { version: "9.8.7", background: { scripts: ["background/service-worker.js"] } };
+    writeFileSync(path.join(firefox, "manifest.json"), JSON.stringify(manifest));
+    const chromium = packageArchive({ root });
+    const result = packageArchive({ root, browser: "firefox" });
+    assert.equal(path.basename(result.destination), "bililive-danmaku-plus-one-firefox-v9.8.7.zip");
+    const contents = unzipSync(readFileSync(result.destination));
+    assert.deepEqual(JSON.parse(Buffer.from(contents["manifest.json"]).toString()), manifest);
+    assert.notDeepEqual(readFileSync(result.destination), readFileSync(chromium.destination));
   } finally {
     rmSync(root, { recursive: true, force: true });
   }

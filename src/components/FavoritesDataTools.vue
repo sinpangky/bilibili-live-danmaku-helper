@@ -5,7 +5,7 @@
       <small>{{ t("favoritesBackupDescription") }}</small>
     </span>
     <span class="favorites-data-actions">
-      <button type="button" :disabled="busy" @click="chooseStorageDirectory">
+      <button v-if="supportsDirectoryPicker" type="button" :disabled="busy" @click="chooseStorageDirectory">
         <svg viewBox="0 0 24 24" aria-hidden="true">
           <path d="M3.5 7.5h6l1.8 2H20.5v8.5a2 2 0 0 1-2 2h-13a2 2 0 0 1-2-2z" />
           <path d="M3.5 8V6a2 2 0 0 1 2-2h4l1.8 2h5.2" />
@@ -37,6 +37,7 @@
 </template>
 
 <script setup lang="ts">
+import { extensionApi } from '../core/extension-api'
 import { ref } from "vue";
 import {
   exportFavoritesData,
@@ -53,6 +54,7 @@ const emit = defineEmits<{
   status: [message: string, kind: "error" | "saved"];
 }>();
 
+const supportsDirectoryPicker = "showDirectoryPicker" in window;
 const busy = ref(false);
 const fileInput = ref<HTMLInputElement | null>(null);
 
@@ -83,7 +85,7 @@ async function chooseStorageDirectory(): Promise<void> {
       throw new Error(t("favoritesDirectoryPermissionDenied"));
     }
     await saveFavoritesDirectoryHandle(handle);
-    const response = await chrome.runtime.sendMessage({ type: FAVORITES_DIRECTORY_SYNC_MESSAGE });
+    const response = await extensionApi.runtime.sendMessage({ type: FAVORITES_DIRECTORY_SYNC_MESSAGE });
     if (!response?.ok || !response.synced) {
       throw new Error(response?.error || t("favoritesDirectorySyncFailed"));
     }
@@ -144,7 +146,7 @@ async function importBackup(event: Event): Promise<void> {
       return;
     }
     const imported = await importFavoritesData(localStorageArea(), text);
-    await chrome.runtime.sendMessage({ type: FAVORITES_DIRECTORY_SYNC_MESSAGE });
+    await extensionApi.runtime.sendMessage({ type: FAVORITES_DIRECTORY_SYNC_MESSAGE });
     emit("status", t("favoritesBackupImported", String(imported.items.length)), "saved");
   } catch (error) {
     emit("status", error instanceof Error ? error.message : t("favoritesBackupImportFailed"), "error");

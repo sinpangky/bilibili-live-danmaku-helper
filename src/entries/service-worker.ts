@@ -1,3 +1,4 @@
+import { extensionApi } from '../core/extension-api'
 import {
   FAVORITES_DIRECTORY_SYNC_MESSAGE,
   syncFavoritesToDirectory,
@@ -29,27 +30,6 @@ import {
 const favoritesRepository = createFavoritesRepository(chrome.storage.local)
 let favoriteWriteQueue: Promise<void> = Promise.resolve()
 let sendLogWriteQueue: Promise<void> = Promise.resolve()
-const bilibiliEmoticonCatalogs = new Map<
-  number,
-  { pageRoomId: string; response: BilibiliEmoticonResponse }
->()
-const bilibiliEmoticonCatalogBuilds = new Map<number, Promise<BilibiliEmoticonResponse>>()
-
-function localGet<T>(key: string): Promise<T | undefined> {
-  return new Promise((resolve) => {
-    chrome.storage.local.get(key, (value) => resolve(value?.[key] as T | undefined))
-  })
-}
-
-function localSet(value: Record<string, unknown>): Promise<void> {
-  return new Promise((resolve, reject) =>
-    chrome.storage.local.set(value, () => {
-      if (chrome.runtime.lastError) reject(new Error(chrome.runtime.lastError.message))
-      else resolve()
-    }),
-  )
-}
-
 function sanitizeLog(entry: SendLogEntryV1): SendLogEntryV1 {
   const text = (value: unknown, limit = 2000) => String(value || '').slice(0, limit)
   return {
@@ -77,12 +57,17 @@ function sanitizeLog(entry: SendLogEntryV1): SendLogEntryV1 {
   }
 }
 
-async function appendSendLog(entry: SendLogEntryV1): Promise<void> {
+function updateSendLog(entry?: SendLogEntryV1): Promise<void> {
+  const storage = extensionApi.storage.local
   const operation = sendLogWriteQueue.then(async () => {
-    const current = await localGet<SendLogEntryV1[]>(SEND_LOG_STORAGE_KEY)
+    if (!entry) {
+      await storage.set({ [SEND_LOG_STORAGE_KEY]: [] })
+      return
+    }
+    const current = (await storage.get(SEND_LOG_STORAGE_KEY))[SEND_LOG_STORAGE_KEY]
     const entries = Array.isArray(current) ? current : []
     entries.unshift(sanitizeLog(entry))
-    await localSet({ [SEND_LOG_STORAGE_KEY]: entries.slice(0, SEND_LOG_LIMIT) })
+    await storage.set({ [SEND_LOG_STORAGE_KEY]: entries.slice(0, SEND_LOG_LIMIT) })
   })
   sendLogWriteQueue = operation.then(
     () => undefined,
@@ -182,7 +167,7 @@ async function syncFavoritesDirectory(): Promise<boolean> {
 }
 
 chrome.runtime.onMessage.addListener((message: unknown, sender, sendResponse) => {
-  const senderUrl = sender.tab?.url || sender.url
+  const senderUrl = sender.url
 
   if (isSendLogRequest(message)) {
     if (message.operation === 'append') {
@@ -190,7 +175,7 @@ chrome.runtime.onMessage.addListener((message: unknown, sender, sendResponse) =>
         sendResponse({ ok: false, error: 'invalid-send-log-sender' } satisfies SendLogResponse)
         return false
       }
-      appendSendLog(message.entry)
+      updateSendLog(message.entry)
         .then(() => sendResponse({ ok: true } satisfies SendLogResponse))
         .catch((error: unknown) =>
           sendResponse({ ok: false, error: String(error) } satisfies SendLogResponse),
@@ -202,15 +187,16 @@ chrome.runtime.onMessage.addListener((message: unknown, sender, sendResponse) =>
       return false
     }
     if (message.operation === 'clear') {
-      localSet({ [SEND_LOG_STORAGE_KEY]: [] })
+      updateSendLog()
         .then(() => sendResponse({ ok: true, entries: [] } satisfies SendLogResponse))
         .catch((error: unknown) =>
           sendResponse({ ok: false, error: String(error) } satisfies SendLogResponse),
         )
       return true
     }
-    localGet<SendLogEntryV1[]>(SEND_LOG_STORAGE_KEY)
-      .then((entries) => {
+    sendLogWriteQueue.then(() => extensionApi.storage.local.get(SEND_LOG_STORAGE_KEY))
+      .then((stored) => {
+        const entries = stored[SEND_LOG_STORAGE_KEY]
         sendResponse({
           ok: true,
           entries: Array.isArray(entries) ? entries : [],
@@ -246,9 +232,9 @@ chrome.runtime.onMessage.addListener((message: unknown, sender, sendResponse) =>
       sendResponse({ ok: false, error: 'invalid-bilibili-sender' } satisfies BilibiliSendResponse)
       return false
     }
-    chrome.scripting
+    extensionApi.scripting
       .executeScript({
-        target: { tabId, frameIds: [0] },
+        target: { tabId, frameIds: [sender.frameId ?? 0] },
         world: 'MAIN',
         func: sendBilibiliDanmakuInPage,
         args: [message.message],
@@ -274,50 +260,21 @@ chrome.runtime.onMessage.addListener((message: unknown, sender, sendResponse) =>
       } satisfies BilibiliEmoticonResponse)
       return false
     }
-    const execute = () =>
-      chrome.scripting
-        .executeScript({
-          target: { tabId, frameIds: [0] },
-          world: 'MAIN',
-          func: handleBilibiliEmoticonsInPage,
-          args: [message],
-        })
-        .then(
-          ([result]) =>
-            (result?.result || {
-              ok: false,
-              error: 'empty-page-response',
-            }) as BilibiliEmoticonResponse,
-        )
-    let operation: Promise<BilibiliEmoticonResponse>
-    if (message.operation === 'catalog') {
-      const pageRoomId = /^\/(\d+)/.exec(new URL(String(senderUrl)).pathname)?.[1] || ''
-      const cached = bilibiliEmoticonCatalogs.get(tabId)
-      if (cached && cached.pageRoomId === pageRoomId) {
-        operation = Promise.resolve(cached.response)
-      } else {
-        operation = bilibiliEmoticonCatalogBuilds.get(tabId) || execute()
-        bilibiliEmoticonCatalogBuilds.set(tabId, operation)
-        operation = operation.then((response) => {
-          if (response.ok && response.roomId) {
-            bilibiliEmoticonCatalogs.set(tabId, { pageRoomId, response })
-          }
-          return response
-        })
-      }
-    } else {
-      operation = execute()
-    }
-    operation
-      .then((response) => sendResponse(response))
+    extensionApi.scripting
+      .executeScript({
+        target: { tabId, frameIds: [sender.frameId ?? 0] },
+        world: 'MAIN',
+        func: handleBilibiliEmoticonsInPage,
+        args: [message],
+      })
+      .then(([result]) => {
+        sendResponse(result?.result || { ok: false, error: 'empty-page-response' })
+      })
       .catch((error: unknown) => {
         sendResponse({
           ok: false,
           error: String(error instanceof Error ? error.message : error),
         } satisfies BilibiliEmoticonResponse)
-      })
-      .finally(() => {
-        if (message.operation === 'catalog') bilibiliEmoticonCatalogBuilds.delete(tabId)
       })
     return true
   }
