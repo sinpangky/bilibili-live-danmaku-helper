@@ -6,7 +6,7 @@
 
 *An open-source Chrome, Edge and Firefox extension for Bilibili Live. One-click danmaku repetition, copying, favorites, quick replies, automatic message rotation, and fullscreen support.*
 
-[下载安装](https://github.com/sinpangky/bilibili-live-danmaku-helper/releases/latest) · [查看源码](https://github.com/sinpangky/bilibili-live-danmaku-helper) · [隐私说明](PRIVACY.md)
+[下载安装](#安装) · [查看源码](https://github.com/sinpangky/bilibili-live-danmaku-helper) · [隐私说明](PRIVACY.md)
 
 > 适用平台：B站网页版直播间 `live.bilibili.com`  
 > 源码版本：v0.0.4 · Manifest V3 · 简体中文界面
@@ -27,9 +27,21 @@
 
 ## 安装
 
-**Firefox 桌面版（140 及以上）**：打开 `about:debugging#/runtime/this-firefox`，点击 **临时载入附加组件**，选择 `bililive-danmaku-plus-one-firefox-v0.0.4.zip`。打开或刷新 B 站直播间。此 ZIP 用于临时加载，重启浏览器后需重新加载；正式版 Firefox 的长期安装需要 Mozilla 签名。Firefox 支持本地收藏和 JSON 导入、导出，目录自动同步仅在浏览器提供目录选择器时可用。
+### Firefox 桌面版（140 及以上）
 
-**Chrome / Edge**：解压不含 `-firefox-` 的 ZIP，打开 `chrome://extensions` 或 `edge://extensions`，开启 **开发者模式**，点 **加载已解压的扩展程序**，选择解压后的目录。
+1. 下载 [Firefox 签名安装包（v0.0.4，.xpi）](https://github.com/sinpangky/bilibili-live-danmaku-helper/releases/download/v0.0.4/bililive-danmaku-plus-one-firefox-v0.0.4.xpi)。
+2. 在 Firefox 地址栏输入 `about:addons`，点击齿轮菜单，选择 **从文件安装附加组件**。
+3. 选中下载的 `.xpi` 文件，按提示确认安装。该版本已获 Mozilla 签名，重启 Firefox 后仍可使用。
+
+### Chrome / Edge
+
+1. 下载 [Chrome / Edge 安装包（v0.0.4，.zip）](https://github.com/sinpangky/bilibili-live-danmaku-helper/releases/download/v0.0.4/bililive-danmaku-plus-one-v0.0.4.zip)，解压到一个会长期保留的文件夹。
+2. 在 Chrome 地址栏输入 `chrome://extensions`，或在 Edge 地址栏输入 `edge://extensions`，打开 **开发者模式**。
+3. 点击 **加载已解压的扩展程序**（英文界面为 **Load unpacked**），选择直接包含 `manifest.json` 的文件夹。安装后请保留该文件夹，浏览器会继续从中读取扩展。
+
+安装完成后，打开或刷新一个 [B 站直播间](https://live.bilibili.com/)，将鼠标移到一条弹幕上即可看到 `+1` 按钮。
+
+### 从源码构建
 
 [GitHub Releases](https://github.com/sinpangky/bilibili-live-danmaku-helper/releases) 提供已发布版本。要从当前源码生成两个 ZIP，请使用项目要求的 Node.js 版本，在仓库根目录运行：
 
@@ -89,7 +101,7 @@ npm run package
 
 **Q：收藏会跨设备自动同步吗？**
 
-弹幕收藏默认保存在当前浏览器本地，不会自动跨设备同步。可以通过 JSON 文件导入、导出或授权的本地目录进行备份与迁移。
+弹幕收藏默认保存在当前浏览器本地，不会自动跨设备同步。Firefox、Chrome 和 Edge 都可通过 JSON 文件导入、导出收藏。浏览器提供目录选择器时，还可授权本地目录自动备份。
 
 **Q：支持手机 B 站 App 或其他直播平台吗？**
 
