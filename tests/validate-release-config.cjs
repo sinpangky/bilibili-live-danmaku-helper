@@ -26,6 +26,8 @@ for (const [description, pattern] of [
   ['full check', /npm run check/],
   ['browser E2E', /npm run test:browser/],
   ['browser failure diagnostics', /name:\s*browser-e2e-release-failure/],
+  ['Mozilla signing', /run: node scripts\/sign-firefox\.cjs/],
+  ['signed XPI in release', /gh release create .*dist\/\*\.xpi/],
   ['checksum', /scripts\/write-checksum\.cjs/],
   ['GitHub Release creation', /gh release create/],
 ]) {
